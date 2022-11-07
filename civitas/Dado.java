@@ -9,51 +9,53 @@ import java.util.Random;
  */
 
 class Dado {        
-    static final private Dado instance = new Dado();
+    private static final Dado instance = new Dado();
+    private static final int VALORDEBUG = 1;
+    private static final int VALORESDADO = 6;
     
     private Random random;
     private int ultimoResultado;
     private boolean debug;                      // Si está activo, el numero al tirar el dado es siempre 1
     
     private Dado(){                             // Constructor privado
-        random = new Random();
-        ultimoResultado = 0;
-        debug = false;        
+        this.random = new Random();
+        this.ultimoResultado = 0;
+        this.debug = false;        
     }
     
-    static Dado getInstance(){        
+    public static Dado getInstance(){        
         return instance;
     }
     
     int tirar(){
         int tirada;
         
-        if (debug == true)
+        if (this.debug == true)
             tirada = 1;
         else
             tirada = (int) (random.nextDouble() * 6 + 1);
         
-        ultimoResultado = tirada;
+        this.ultimoResultado = tirada;
         return tirada;
     }
     
     int quienEmpieza (int n){
         int suertudo;
-        suertudo = (int) (random.nextDouble() * (n) + 0);        
+        suertudo = (int) (random.nextDouble() * (n-1) + 0);
         return suertudo;
     }
     
-    void setDebug (boolean d){
-        debug = d;
+    public void setDebug (boolean debug){
+        this.debug = debug;
         
-        if (d == false)
+        if (debug == false)
             Diario.getInstance().ocurreEvento("El modo Debug del dado esta desactivado.");
         else
             Diario.getInstance().ocurreEvento("El modo Debug del dado esta activado.");
     }
     
     int getUltimoResultado(){        
-        return ultimoResultado;
+        return this.ultimoResultado;
     }
     
     

@@ -9,20 +9,20 @@ import java.util.ArrayList;
  */
 
 public class Tablero {
-    static private final int TAMAÑOTABLERO = 20;
+    private static final int TAMANIOTABLERO = 20;
     
-    private ArrayList<Casilla> casillas;
+    private ArrayList<Casilla> tablero;
     private boolean porSalida;
     
     Tablero(){
-        casillas = new ArrayList();                       
-        casillas.add(new Casilla(TipoCasilla.DESCANSO, "Salida", 0,0,0));
+        tablero = new ArrayList();                       
+        tablero.add(new Casilla("Salida"));                     // Crea la casilla de salida
            
         porSalida = false;  
     }
     
     private boolean correcto (int numCasilla){    
-        return (numCasilla >= 0) && (numCasilla < TAMAÑOTABLERO);
+        return (numCasilla >= 0) && (numCasilla < TAMANIOTABLERO);
     }       
     
     boolean computarPasoPorSalida(){        
@@ -33,14 +33,18 @@ public class Tablero {
     }
     
     void añadeCasilla (Casilla casilla){
-        casillas.add(casilla);        
+        tablero.add(casilla);        
     }    
     
-    Casilla getCasilla (int numCasilla){        
+    public Casilla getCasilla (int numCasilla){        
         if(correcto(numCasilla))
-            return casillas.get(numCasilla);
+            return tablero.get(numCasilla);
         else
             return null;
+    }
+    
+    public ArrayList<Casilla> getCasillas(){
+        return tablero;
     }
     
     int nuevaPosicion (int actual, int tirada){
@@ -55,25 +59,13 @@ public class Tablero {
         // actual = 3       tirada = 2      size() = 5        nuevaPosicion = 5 % 5 = 0
         // actual = 3       tirada = 1      size() = 5        nuevaPosicion = 4
         
-        if (nuevaPosicion > (TAMAÑOTABLERO - 1)){
-            nuevaPosicion = nuevaPosicion % TAMAÑOTABLERO;
+        if (nuevaPosicion > (TAMANIOTABLERO - 1)){
+            nuevaPosicion = nuevaPosicion % TAMANIOTABLERO;
             porSalida = true;
         }   
         
         return nuevaPosicion;
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     
     
     

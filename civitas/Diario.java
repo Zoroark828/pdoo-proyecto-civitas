@@ -16,18 +16,19 @@ public class Diario {
     return instance;
   }
 
+  /* Según el DC, hay que quitar este método
   public ArrayList<String> getEventos() {
     return eventos;
   }
-  
+  */
   
   
   private Diario () {                       // Constructor privado
-    eventos = new ArrayList<>();
+    eventos = new ArrayList();
   }
   
-  void ocurreEvento (String e) {
-    eventos.add (e);
+  void ocurreEvento (String evento) {
+    eventos.add (evento);
   }
   
   public boolean eventosPendientes () {

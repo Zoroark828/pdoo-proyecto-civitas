@@ -6,7 +6,7 @@ package civitas;
 Representa los distintos estados del juego.
 */
 
-enum EstadosJuego {
+enum EstadoJuego {
   INICIO_TURNO,
   DESPUES_AVANZAR,
   DESPUES_COMPRAR,
