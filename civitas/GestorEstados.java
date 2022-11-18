@@ -77,7 +77,7 @@ class GestorEstados {
         break;
     }
 
-    Diario.getInstance().ocurreEvento("De: "+estado.toString()+ " con "+operacion.toString()+ " sale: "+siguiente.toString());
+    Diario.getInstance().ocurreEvento("\n==> De: "+estado.toString()+ " con "+operacion.toString()+ " sale: "+siguiente.toString());
 
     return siguiente;
   }

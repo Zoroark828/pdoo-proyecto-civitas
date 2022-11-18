@@ -61,7 +61,9 @@ public class Casilla {
           this.mazo = mazo;
       }
       
-      String getNombre(){
+      // CAMBIO (!!). Antes tenia visibilidad paquete pero lo he cambiado a public para que VistaTextual
+      // pueda acceder al metodo getNombre()
+      public String getNombre(){
           return this.nombre;
       }
                   
@@ -93,18 +95,14 @@ public class Casilla {
       }
       
       boolean construirCasa(Jugador jugador){
-          //////////////////////////////////////////////////////////////////
-          // Se implementará en la proxima práctica
-          //////////////////////////////////////////////////////////////////
-                    
+          this.propietario.paga(this.precioEdificar);
+          numCasas++;
           return true;
       }
       
       boolean construirHotel(Jugador jugador){
-          //////////////////////////////////////////////////////////////////
-          // Se implementará en la proxima práctica
-          //////////////////////////////////////////////////////////////////
-          
+          this.propietario.paga(precioEdificar);
+          this.numHoteles++;
           return true;
       }
       
@@ -117,44 +115,9 @@ public class Casilla {
               return false;          
       }
       
-      public String toString(){
-          String informacion;
-          
-          switch (this.tipo){
-              case DESCANSO:
-              informacion = ("Casilla tipo Descanso. Nombre: " +this.nombre +".\n");
-              break;
-              
-              case CALLE:
-              if (this.tienePropietario()){
-              informacion = ("Casilla tipo Calle. Titulo: " +this.nombre +". \nPropietario: " +this.propietario
-                      +"\n=== PRECIOS ===" +"\nCompra: " +this.precioCompra
-                      +"\nEdificar: " +this.precioEdificar +"\nAlquiler base: " +this.precioBaseAlquiler 
-                      +"\n== CONSTRUCCIONES ===" +"\nCasas: " +this.numCasas +"\nHoteles: " +this.numHoteles +"\n");
-              }
-              else
-                  informacion = ("Casilla tipo Calle. Titulo: " +this.nombre +". \nNo tiene propietario. "
-                      +"\n=== PRECIOS ===" +"\nCompra: " +this.precioCompra
-                      +"\nEdificar: " +this.precioEdificar +"\nAlquiler base: " +this.precioBaseAlquiler 
-                      +"\n== CONSTRUCCIONES ===" +"\nCasas: " +this.numCasas +"\nHoteles: " +this.numHoteles +"\n");
-              
-              break;
-              
-              case SORPRESA:
-              informacion = ("Casilla tipo Sorpresa. Nombre: " +this.nombre +".\n");
-              break;
-              
-              default:
-                  informacion = "ERROR. Esta casilla no tiene tipo.";
-          }
-          
-          return informacion;
-      }
-      
       boolean comprar (Jugador jugador){
-          //////////////////////////////////////////////////////////////////
-          // Se implementará en la proxima práctica
-          //////////////////////////////////////////////////////////////////
+          this.propietario = jugador;
+          this.propietario.paga(this.precioCompra);
           
           return true;
       }
@@ -163,29 +126,33 @@ public class Casilla {
           return this.propietario == jugador;
       }
       
-      void informe (int iactual, ArrayList<Jugador> todos){                    
-          Diario.getInstance().ocurreEvento("El jugador " + todos.get(iactual).getNombre() 
-                  +" ha caido en la casilla de siguientes parametros:\n" + this.toString() );
-      }
-      
       void recibeJugador (int iactual, ArrayList<Jugador> todos){
-          //////////////////////////////////////////////////////////////////
-          // Se implementará en la proxima práctica
-          //////////////////////////////////////////////////////////////////
-          
+          if(this.tipo == TipoCasilla.CALLE)
+              this.recibeJugador_calle(iactual,todos);
+          else if(this.tipo == TipoCasilla.SORPRESA)
+              this.recibeJugador_sorpresa(iactual,todos);
+          else if(this.tipo == TipoCasilla.DESCANSO)
+              this.informe(iactual,todos);
       }
       
       private void recibeJugador_calle (int iactual, ArrayList<Jugador> todos){
-          //////////////////////////////////////////////////////////////////
-          // Se implementará en la proxima práctica
-          //////////////////////////////////////////////////////////////////
+          this.informe(iactual,todos);
+          Jugador jugador = todos.get(iactual);
           
+          if (! this.tienePropietario())
+              jugador.puedeComprarCasilla();
+          else
+              this.tramitarAlquiler(jugador);
       }
       
       private void recibeJugador_sorpresa (int iactual, ArrayList<Jugador> todos){
-          //////////////////////////////////////////////////////////////////
-          // Se implementará en la proxima práctica
-          //////////////////////////////////////////////////////////////////
+          this.sorpresa = mazo.siguiente();
+          this.informe(iactual, todos);
+          this.sorpresa.aplicarAJugador(iactual, todos);
+
+          
+          
+          
           
       }
       
@@ -201,38 +168,48 @@ public class Casilla {
           }
       }
       
+      void informe (int iactual, ArrayList<Jugador> todos){                    
+          Diario.getInstance().ocurreEvento("El jugador " + todos.get(iactual).getNombre() 
+                  +" ha caido en la casilla de siguientes parametros:\n" + this.toString() );
+      }
       
-     
+     @Override
+      public String toString(){
+          String informacion = " ";
+          String tab = "    ";
+          
+          switch (this.tipo){
+              case DESCANSO:
+              informacion = ("Casilla tipo Descanso. Nombre: " +this.nombre +".\n");
+              break;
+              
+              case CALLE:
+              if (this.tienePropietario()){
+              informacion = (tab +"Casilla tipo Calle. Titulo: " +this.nombre +".\n" +tab +"Propietario: " +this.propietario.getNombre() +".\n"
+                      +tab +"== PRECIOS ==>" +tab +"Compra: " +this.precioCompra +tab +"Edificar: " +this.precioEdificar 
+                      +tab +"Alquiler base: " +this.precioBaseAlquiler +"\n"
+                      +tab +"== CONSTRUCCIONES ==>" +tab  +"Casas: " +this.numCasas +tab +"Hoteles: " +this.numHoteles +"\n");
+              }
+              else
+                  informacion = (tab +"Casilla tipo Calle. Titulo: " +this.nombre +".\n" +tab +"No tiene propietario.\n"
+                      +tab +"== PRECIOS ==>" +tab +"Compra: " +this.precioCompra +tab +"Edificar: " +this.precioEdificar 
+                      +tab +"Alquiler base: " +this.precioBaseAlquiler +"\n"
+                      +tab +"== CONSTRUCCIONES ==>" +tab  +"Casas: " +this.numCasas +tab +"Hoteles: " +this.numHoteles +"\n");
+              
+              break;
+              
+              case SORPRESA:
+              informacion = (tab +"Casilla tipo Sorpresa. Nombre: " +this.nombre +".\n");
+              break;
+          }
+          
+          return informacion;
+      }
+      
+      
+      
+      
+      
+      
 }
     
-    
-    /*
-    main para hacer pruebas con esta clase a través de la opcion "Run file" de Netbeans
-    
-    class pruebasCasillas{
-        public static void main(String[] args){
-            Casilla descanso = new Casilla ("SPA descanso");
-            Casilla sorpresa = new Casilla ("Sorpresitas guays", null);
-            Casilla calle1 = new Casilla ("Azul",10,15,20);
-            Casilla calle2 = new Casilla ("Roja",20,25,30);
-        
-            System.out.println(descanso.toString());
-        
-            System.out.println(sorpresa.toString());
-        
-            System.out.println(calle1.toString());
-        
-            System.out.println(calle2.toString());
-        
-            System.out.println(calle2.tienePropietario());
-         
-        }
-    
-    }
-    */
-    
-
-
-
-
-

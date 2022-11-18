@@ -41,7 +41,7 @@ class Dado {
     
     int quienEmpieza (int n){
         int suertudo;
-        suertudo = (int) (random.nextDouble() * (n-1) + 0);
+        suertudo = (int) (random.nextDouble() * (n) + 0);
         return suertudo;
     }
     

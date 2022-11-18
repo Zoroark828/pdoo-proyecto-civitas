@@ -31,7 +31,9 @@ public class Jugador implements Comparable<Jugador> {
     private float saldo;
     private ArrayList<Casilla> propiedades;
     
-    Jugador (String nombre){
+    // CAMBIO (!!). Antes tenia visibilidad paquete y lo tuve que cambiar a public porque si no en la clase JuegoTexto no
+    // puedo crear nuevos jugadores
+    public Jugador (String nombre){
         this.nombre = nombre;
         this.casillaActual = 0;
         this.puedeComprar = false;
@@ -71,35 +73,62 @@ public class Jugador implements Comparable<Jugador> {
         return numCasasHoteles;
     } 
     
+    @Override
     public int compareTo (Jugador otro){
-        // Posibles resultados: 0 -> ambos saldos son iguales
-        //                      Valor negativo -> this.saldo < otro.saldo
-        //                      Valor positivo -> this saldo > otro.saldo
-        return Float.compare(this.saldo, otro.saldo);
+        return Float.compare(otro.saldo,this.saldo);
     }
     
     boolean comprar (Casilla titulo){
-        //////////////////////////////////////////////////////////////////
-        // Se implementará en la proxima práctica
-        //////////////////////////////////////////////////////////////////
+        boolean result = false;
         
-        return true;        
+        if (this.puedeComprar){
+            float precio = titulo.getPrecioCompra();
+            
+            if(this.puedoGastar(precio)){
+                result = titulo.comprar(this);
+                propiedades.add(titulo);
+                Diario.getInstance().ocurreEvento("El jugador " +this.nombre +" compra la " +titulo.getNombre());
+                this.puedeComprar = false;
+            }
+            else
+                Diario.getInstance().ocurreEvento("El jugador " +this.nombre +" no tiene saldo para comprar la " +titulo.getNombre());
+        }
+        
+        return result;
     }
     
     boolean construirCasa (int ip){
-        //////////////////////////////////////////////////////////////////
-        // Se implementará en la proxima práctica
-        //////////////////////////////////////////////////////////////////
+        boolean result = false;
+        boolean existe = this.existeLaPropiedad(ip);
         
-        return true;
+        if (existe){
+            Casilla propiedad = this.propiedades.get(ip);
+            boolean puedoEdificar = this.puedoEdificarCasa(propiedad);
+            
+            if (puedoEdificar){
+                result = propiedad.construirCasa(this);
+                Diario.getInstance().ocurreEvento("El jugador " +this.nombre +" construye casa en la " +propiedad.getNombre());
+            }
+        }
+        
+        return result;
     }
     
     boolean construirHotel (int ip){
-        //////////////////////////////////////////////////////////////////
-        // Se implementará en la proxima práctica
-        //////////////////////////////////////////////////////////////////
+        boolean result = false;
         
-        return true;
+        if (this.existeLaPropiedad(ip)){
+            Casilla propiedad = propiedades.get(ip);
+            boolean puedoEdificarHotel = this.puedoEdificarHotel(propiedad);
+            
+            if (puedoEdificarHotel){
+                result = propiedad.construirHotel(this);
+                propiedad.derruirCasas(CasasPorHotel,this);
+                Diario.getInstance().ocurreEvento("El jugador " +this.nombre +" construye un hotel en la " +propiedad.getNombre());
+            }
+        }
+        
+        return result;
     }
     
     boolean enBancarrota(){
@@ -112,15 +141,21 @@ public class Jugador implements Comparable<Jugador> {
         return this.propiedades.size() > ip;
     }
     
-    int getCasillaActual(){
+    // CAMBIO (!!). En el DC getCasillaActual() tiene visibilidad paquete. La he cambiado a publica para poder
+    // usarla en el metodo actualiza() de la clase VistaTextual y poder imprimir informacion sobre la casilla actual
+    public int getCasillaActual(){
         return this.casillaActual;
     }
     
-    protected String getNombre(){
+    // CAMBIO (!!). En el DC getNombre() tiene visibilidad protected. La he cambiado a publica para poder
+    // usarla en el metodo actualiza() de la clase VistaTextual y poder obtener el nombre del jugador actual
+    public String getNombre(){
         return this.nombre;
     }
     
-    protected ArrayList<Casilla> getPropiedades(){
+    // CAMBIO (!!). En el DC getPropiedades() tiene visibilidad protected. La he cambiado a publica para poder
+    // usarla en el metodo elegirPropiedad() de la clase VistaTextual y poder obtener los nombres de las propiedades
+    public ArrayList<Casilla> getPropiedades(){
         return this.propiedades;
     }
     
@@ -141,7 +176,9 @@ public class Jugador implements Comparable<Jugador> {
     boolean moverACasilla (int numCasilla){
         this.casillaActual = numCasilla;
         this.puedeComprar = false;
-        Diario.getInstance().ocurreEvento("El jugador " +this.nombre +" se ha movido a la casilla numero " +numCasilla +".");
+        int casillaDisplay = numCasilla + 1;    // Variable que imprimiremos. Le sumamos 1 para que el usuario nunca vea una "casilla 0",
+                                                // que queda bastante anti-intuitivo en la vida real
+        Diario.getInstance().ocurreEvento("El jugador " +this.nombre +" se ha movido a la casilla numero " +casillaDisplay +".");
         return true;
     }
     
@@ -165,14 +202,18 @@ public class Jugador implements Comparable<Jugador> {
     }
     
     private boolean puedoEdificarCasa (Casilla propiedad){        
-        return this.puedoGastar(propiedad.getPrecioEdificar()) 
-                && propiedad.getNumCasas() < CasasMax;
+        float precioEdificar = propiedad.getPrecioEdificar();
+        boolean puedoEdificar = this.puedoGastar(precioEdificar) && propiedad.getNumCasas() < CasasMax;
+        return puedoEdificar;
     }
     
     private boolean puedoEdificarHotel (Casilla propiedad){
-        return this.puedoGastar(propiedad.getPrecioEdificar()) 
-                && propiedad.getNumHoteles() < HotelesMax
-                && propiedad.getNumCasas() == CasasMax;
+        boolean puedoEdificarHotel = false;
+        float precio = propiedad.getPrecioEdificar();
+        if (this.puedoGastar(precio) && propiedad.getNumHoteles() < HotelesMax && propiedad.getNumCasas() >= CasasPorHotel)
+            puedoEdificarHotel = true;
+        
+        return puedoEdificarHotel;
     }
     
     private boolean puedoGastar (float precio){
@@ -187,24 +228,14 @@ public class Jugador implements Comparable<Jugador> {
         return this.propiedades != null;
     }
     
+    @Override
     public String toString(){
-        String informacion = "El jugador " +this.nombre +" se encuentra en la casilla numero" +this.casillaActual 
-                +".\nSu saldo es de " +this.saldo +" euros.";
+        int numeroCasillaReal = this.casillaActual + 1;     // Para que la salida sea la casilla 1 en vez de la casilla 0,
+                                                            // que es menos intuitivo en la vida real
+        String informacion = "El jugador " +this.nombre +" se encuentra en la casilla numero " +numeroCasillaReal 
+                +".\nSu saldo es de " +this.saldo +" euros.\n";
         return informacion;
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     
     
     

@@ -13,19 +13,20 @@ public class CivitasJuego {
     private int indiceJugadorActual;
     private Tablero tablero;
     private MazoSorpresas mazo;
-    private GestorEstados gestorEstado;
+    private GestorEstados gestorEstados;
     private EstadoJuego estado;
     private ArrayList<Jugador> jugadores;
     
     public CivitasJuego (ArrayList<String> nombres, boolean debug){
         // Inicializamos los jugadores añadiendo un jugador por cada nombre introducido como parametro
+        jugadores = new ArrayList();
         for (int i = 0; i < nombres.size(); i++){
             jugadores.add(new Jugador(nombres.get(i)));            
         }
         
         // Fijamos el estado actual como el estado inicial descrito por el Gestor de Estados
-        this.gestorEstado = new GestorEstados();
-        estado = gestorEstado.estadoInicial();
+        this.gestorEstados = new GestorEstados();
+        estado = gestorEstados.estadoInicial();
         
         // Ponemos el dado en el modo debug que estuviera indicado en los parametros
         Dado.getInstance().setDebug(debug);
@@ -41,18 +42,25 @@ public class CivitasJuego {
     }
     
     private void avanzaJugador(){
-        //////////////////////////////////////////////////////////////////
-        // Se implementará en la proxima práctica
-        //////////////////////////////////////////////////////////////////
-                  
+        Jugador jugadorActual = this.getJugadorActual();
+        int posicionActual = jugadorActual.getCasillaActual();
+        int tirada = Dado.getInstance().tirar();
+        int posicionNueva = this.tablero.nuevaPosicion(posicionActual, tirada);
+        Casilla casilla = this.tablero.getCasilla(posicionNueva);
+        
+        this.contabilizarPasosPorSalida();  // En el DS pone que se le pasa por parametro el jugadorActual pero eso se hace ya
+                                            // dentro del metodo contabilizarPasosPorSalida(), que no recibe ningun parametro
+        jugadorActual.moverACasilla(posicionNueva);
+        casilla.recibeJugador(indiceJugadorActual,jugadores);
     }
     
     public boolean comprar(){
-        //////////////////////////////////////////////////////////////////
-        // Se implementará en la proxima práctica
-        //////////////////////////////////////////////////////////////////
-               
-        return true;
+        Jugador jugadorActual = this.getJugadorActual();
+        int numCasillaActual = jugadorActual.getCasillaActual();
+        Casilla casilla = tablero.getCasilla(numCasillaActual);
+        boolean res = jugadorActual.comprar(casilla);
+        
+        return res;
     }
     
     public boolean construirCasa (int ip){
@@ -123,7 +131,7 @@ public class CivitasJuego {
     private void inicializaTablero (MazoSorpresas mazo){
         // La salida se creo con el constructor de Tablero
         // Creamos 14 casillas del tipo calle, 4 del tipo sorpresa y una de tipo parking
-        tablero.añadeCasilla(new Casilla("Calle Arcilla",400,100,50));   
+        tablero.añadeCasilla(new Casilla("Calle Arcilla",400,100,50));
         tablero.añadeCasilla(new Casilla("Calle Terracota",450,150,75));
         tablero.añadeCasilla(new Casilla("SORPRESAAA",mazo));
         tablero.añadeCasilla(new Casilla("Calle Gres",450,150,75));        
@@ -151,21 +159,32 @@ public class CivitasJuego {
             this.indiceJugadorActual++;
     }
     
-    private ArrayList<Jugador> ranking(){
+    // CAMBIO (!!). En el DC ranking() era private, pero lo he tenido que poner en public para poder usarlo
+    // en el Controlador
+    public ArrayList<Jugador> ranking(){
         Collections.sort(this.jugadores, Jugador::compareTo);
         return this.jugadores;
     }
     
     public OperacionJuego siguientePaso(){
-        //////////////////////////////////////////////////////////////////
-        // Se implementará en la proxima práctica
-        //////////////////////////////////////////////////////////////////
-                    
-        return null;
+        Jugador jugadorActual = this.getJugadorActual();
+        OperacionJuego operacion = gestorEstados.siguienteOperacion(jugadorActual, this.estado);
+        switch (operacion){
+            case PASAR_TURNO :
+                this.PasarTurno();
+                this.siguientePasoCompletado(operacion);
+                break;
+            case AVANZAR :
+                this.avanzaJugador();
+                this.siguientePasoCompletado(operacion);
+                break;
+        }
+        
+        return operacion;
     }
     
     public void siguientePasoCompletado (OperacionJuego operacion){
-        this.estado = this.gestorEstado.siguienteEstado (this.getJugadorActual(), this.estado, operacion);
+        this.estado = this.gestorEstados.siguienteEstado (this.getJugadorActual(), this.estado, operacion);
     }
     
     
