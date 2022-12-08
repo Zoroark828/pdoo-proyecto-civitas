@@ -55,26 +55,36 @@ public class Controlador {
                     break;
                     
                 case GESTIONAR:
-                    OperacionInmobiliaria operacionElegida = vista.elegirOperacion();
-                    int ip = 0;
-                    if (operacionElegida != OperacionInmobiliaria.TERMINAR)
-                        ip = vista.elegirPropiedad();
-                    
-                    GestionInmobiliaria gestor = new GestionInmobiliaria(operacionElegida, ip);
-                    
-                    switch (operacionElegida){
-                        case TERMINAR:
-                            juego.siguientePasoCompletado(siguientePaso);
-                            break;
-                            
-                        case CONSTRUIR_CASA:
-                            juego.construirCasa(ip);
-                            break;
-                            
-                        case CONSTRUIR_HOTEL:
-                            juego.construirHotel(ip);
-                            break;
+                    // Este if siguiente lo añadí para que, si un jugador no tiene NINGUNA propiedad, no pueda elegir si quiere
+                    // construir una casa o un hotel. Como no tiene propiedades, si elegía una de estas dos opciones,
+                    // el programa entraba en un bucle infinito por el metodo elegirPropiedad() de VistaTextual. Pediría al
+                    // usuario el valor de la ip que quiere elegir, pero como no tiene propiedades, no puede introducir valor alguno.
+                    if (juego.getJugadorActual().tieneAlgoQueGestionar()){
+                        OperacionInmobiliaria operacionElegida = vista.elegirOperacion();
+                        int ip = 0;
+                        if (operacionElegida != OperacionInmobiliaria.TERMINAR)
+                            ip = vista.elegirPropiedad();
+
+                        GestionInmobiliaria gestor = new GestionInmobiliaria(operacionElegida, ip);
+
+                        switch (operacionElegida){
+                            case TERMINAR:
+                                juego.siguientePasoCompletado(siguientePaso);
+                                break;
+
+                            case CONSTRUIR_CASA:
+                                juego.construirCasa(ip);
+                                break;
+
+                            case CONSTRUIR_HOTEL:
+                                juego.construirHotel(ip);
+                                break;
+                        }
                     }
+                    else{
+                        juego.siguientePasoCompletado(siguientePaso);
+                    }
+                    
                     break;
             }
         }

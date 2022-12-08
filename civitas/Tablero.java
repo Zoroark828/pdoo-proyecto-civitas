@@ -17,7 +17,6 @@ public class Tablero {
     Tablero(){
         tablero = new ArrayList();                       
         tablero.add(new Casilla("Salida"));                     // Crea la casilla de salida
-           
         porSalida = false;  
     }
     
@@ -27,8 +26,7 @@ public class Tablero {
     
     boolean computarPasoPorSalida(){        
         boolean pasoSalida = porSalida;
-        porSalida = false;        
-        
+        porSalida = false;
         return pasoSalida;
     }
     
@@ -48,9 +46,7 @@ public class Tablero {
     }
     
     int nuevaPosicion (int actual, int tirada){
-        
         int nuevaPosicion = actual + tirada;
-                
         // Si estamos en el tamañoTabero - 1 (es decir, la ultima casilla), nuevaPosición será
         // 0 (es decir, la casilla de salida) + el resto de dividir la nuevaPosicion entre el tamaño del tablero
         // EJEMPLOS:                 size() es tamañoTablero
@@ -58,12 +54,10 @@ public class Tablero {
         // actual = 3       tirada = 3      size() = 5        nuevaPosicion = 6 % 5 = 1
         // actual = 3       tirada = 2      size() = 5        nuevaPosicion = 5 % 5 = 0
         // actual = 3       tirada = 1      size() = 5        nuevaPosicion = 4
-        
         if (nuevaPosicion > (TAMANIOTABLERO - 1)){
             nuevaPosicion = nuevaPosicion % TAMANIOTABLERO;
             porSalida = true;
-        }   
-        
+        }
         return nuevaPosicion;
     }
     

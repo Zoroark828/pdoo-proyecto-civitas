@@ -6,15 +6,7 @@ import java.util.ArrayList;
 
 /** autora: @Zoroark828
  *      
- *      DUDAS PREGUNTADAS EN CLASE:
- *      CasasMax es final? Como se si una variable es final en el DC?
- *      Las tres variables de factores de la clase Casilla son final porque están escritas en mayuscula
- *      Las variables de esta clase en un principio no lo son porque no estan escritas en mayusculas
- * 
- *      Para que hacemos el metodo getCasasMax en privado si la clase ya puede acceder a casasMax?
- *      La profesora me dijo que realmente no tiene sentido que exista ese metodo, porque si es privado no puede
- *      ser accedido desde otra clase, y dentro de Jugador podemos usar directamente el atributo. Así que, o su
- *      privacidad es una errata en el DC, o getCasasMax es un metodo implementado para nada.
+ *      
  * 
  */
 
@@ -29,7 +21,8 @@ public class Jugador implements Comparable<Jugador> {
     private String nombre;
     private boolean puedeComprar;
     private float saldo;
-    private ArrayList<Casilla> propiedades;
+    private ArrayList<CasillaCalle> propiedades;
+    private boolean esJugadorEspeculador;   // He añadido esta variable para ayudarme a hacer los castings en algunos metodos
     
     // CAMBIO (!!). Antes tenia visibilidad paquete y lo tuve que cambiar a public porque si no en la clase JuegoTexto no
     // puedo crear nuevos jugadores
@@ -38,7 +31,8 @@ public class Jugador implements Comparable<Jugador> {
         this.casillaActual = 0;
         this.puedeComprar = false;
         this.saldo = SaldoInicial;
-        this.propiedades = new ArrayList();  
+        this.propiedades = new ArrayList();
+        this.esJugadorEspeculador = false;
     }
 
     protected Jugador (Jugador otro){
@@ -47,9 +41,10 @@ public class Jugador implements Comparable<Jugador> {
         this.puedeComprar = otro.puedeComprar;
         this.saldo = otro.saldo;
         this.propiedades = otro.propiedades;
+        this.esJugadorEspeculador = otro.esJugadorEspeculador;
     }
     
-    private static int getCasasMax(){
+    protected static int getCasasMax(){
         return CasasMax;
     }
     
@@ -57,7 +52,7 @@ public class Jugador implements Comparable<Jugador> {
         return CasasPorHotel;
     }
     
-    private static int getHotelesMax(){
+    protected static int getHotelesMax(){
         return HotelesMax;
     }
     
@@ -68,7 +63,8 @@ public class Jugador implements Comparable<Jugador> {
     int cantidadCasasHoteles(){
         int numCasasHoteles = 0;
         for (int i = 0; i < propiedades.size(); i++){
-            numCasasHoteles = propiedades.get(i).getNumCasas() + propiedades.get(i).getNumHoteles();            
+            CasillaCalle propiedadActual = propiedades.get(i);
+            numCasasHoteles = propiedadActual.getNumCasas() + propiedadActual.getNumHoteles();            
         }
         return numCasasHoteles;
     } 
@@ -78,9 +74,8 @@ public class Jugador implements Comparable<Jugador> {
         return Float.compare(otro.saldo,this.saldo);
     }
     
-    boolean comprar (Casilla titulo){
+    boolean comprar (CasillaCalle titulo){
         boolean result = false;
-        
         if (this.puedeComprar){
             float precio = titulo.getPrecioCompra();
             
@@ -102,7 +97,7 @@ public class Jugador implements Comparable<Jugador> {
         boolean existe = this.existeLaPropiedad(ip);
         
         if (existe){
-            Casilla propiedad = this.propiedades.get(ip);
+            CasillaCalle propiedad = this.propiedades.get(ip);
             boolean puedoEdificar = this.puedoEdificarCasa(propiedad);
             
             if (puedoEdificar){
@@ -118,7 +113,7 @@ public class Jugador implements Comparable<Jugador> {
         boolean result = false;
         
         if (this.existeLaPropiedad(ip)){
-            Casilla propiedad = propiedades.get(ip);
+            CasillaCalle propiedad = propiedades.get(ip);
             boolean puedoEdificarHotel = this.puedoEdificarHotel(propiedad);
             
             if (puedoEdificarHotel){
@@ -153,9 +148,13 @@ public class Jugador implements Comparable<Jugador> {
         return this.nombre;
     }
     
+    public boolean getEsJugadorEspeculador(){
+        return esJugadorEspeculador;
+    }
+    
     // CAMBIO (!!). En el DC getPropiedades() tiene visibilidad protected. La he cambiado a publica para poder
     // usarla en el metodo elegirPropiedad() de la clase VistaTextual y poder obtener los nombres de las propiedades
-    public ArrayList<Casilla> getPropiedades(){
+    public ArrayList<CasillaCalle> getPropiedades(){
         return this.propiedades;
     }
     
@@ -187,7 +186,14 @@ public class Jugador implements Comparable<Jugador> {
     }
     
     boolean pagaAlquiler (float cantidad){
-        return this.paga(cantidad);
+        boolean result = false;
+        
+        if (this.esJugadorEspeculador)
+            result = ((JugadorEspeculador) this).paga(cantidad);
+        else
+            result = this.paga(cantidad);
+        
+        return result;
     }
     
     boolean pasaPorSalida(){
@@ -201,18 +207,29 @@ public class Jugador implements Comparable<Jugador> {
         return this.puedeComprar;
     }
     
-    private boolean puedoEdificarCasa (Casilla propiedad){        
+    private boolean puedoEdificarCasa (CasillaCalle propiedad){        
         float precioEdificar = propiedad.getPrecioEdificar();
-        boolean puedoEdificar = this.puedoGastar(precioEdificar) && propiedad.getNumCasas() < CasasMax;
-        return puedoEdificar;
+        int casasMax;   // Hacemos casting si es un jugador especulador
+        if (this.getEsJugadorEspeculador())
+            casasMax = ((JugadorEspeculador) this).getCasasMax();
+        else
+            casasMax = this.getCasasMax();
+        
+        boolean puedoEdificarCasa = this.puedoGastar(precioEdificar) && propiedad.getNumCasas() < casasMax;
+        return puedoEdificarCasa;
     }
     
-    private boolean puedoEdificarHotel (Casilla propiedad){
+    private boolean puedoEdificarHotel (CasillaCalle propiedad){
         boolean puedoEdificarHotel = false;
         float precio = propiedad.getPrecioEdificar();
-        if (this.puedoGastar(precio) && propiedad.getNumHoteles() < HotelesMax && propiedad.getNumCasas() >= CasasPorHotel)
-            puedoEdificarHotel = true;
+        int hotelesMax;   // Hacemos casting si es un jugador especulador
+        if (this.getEsJugadorEspeculador())
+            hotelesMax = ((JugadorEspeculador) this).getHotelesMax();
+        else
+            hotelesMax = this.getHotelesMax();
         
+        if (this.puedoGastar(precio) && propiedad.getNumHoteles() < hotelesMax && propiedad.getNumCasas() >= CasasPorHotel)
+            puedoEdificarHotel = true;
         return puedoEdificarHotel;
     }
     
@@ -224,8 +241,15 @@ public class Jugador implements Comparable<Jugador> {
         return this.modificarSaldo(cantidad);
     }
     
-    boolean tieneAlgoQueGestionar(){
-        return this.propiedades != null;
+    // CAMBIO (!!). Lo cambié de package a public para poder utilizarlo en el Controlador
+    public boolean tieneAlgoQueGestionar(){
+        return !this.propiedades.isEmpty();
+    }
+    
+    Jugador convertir(){            // Metodo que convierte a un jugador en jugador especulador
+        this.esJugadorEspeculador = true;
+        Jugador especulador = new JugadorEspeculador (this);
+        return especulador;
     }
     
     @Override

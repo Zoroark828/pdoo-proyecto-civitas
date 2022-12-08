@@ -10,7 +10,7 @@ import java.util.Collections;
  */
 
 public class MazoSorpresas {
-    private static final int TAMANIOMAZO = 10;
+    private static final int TAMANIOMAZO = 11;
     
     private ArrayList<Sorpresa> sorpresas;
     private boolean barajada;

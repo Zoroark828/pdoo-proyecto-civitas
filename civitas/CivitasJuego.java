@@ -58,7 +58,7 @@ public class CivitasJuego {
         Jugador jugadorActual = this.getJugadorActual();
         int numCasillaActual = jugadorActual.getCasillaActual();
         Casilla casilla = tablero.getCasilla(numCasillaActual);
-        boolean res = jugadorActual.comprar(casilla);
+        boolean res = jugadorActual.comprar((CasillaCalle) casilla);
         
         return res;
     }
@@ -102,25 +102,30 @@ public class CivitasJuego {
         return this.tablero;
     }
     
-    private void inicializaMazoSorpresas(){        
-        // Añadimos 3 sorpresas negativas del tipo PAGARCOBRAR
+    private void inicializaMazoSorpresas(){
+        // Primero añadimos la carta sorpresa que convierte a un jugador en especulador
+        // Hay que tener en cuenta que si probamos el juego en modo debug, el primer jugador que llegue a una casilla
+        // tipo sorpresa será el que se convierta en especulador
+        this.mazo.alMazo(new SorpresaConvertirme ("El jugador se ha convertido en un jugador especulador.",0));
+        
+        // Añadimos 3 sorpresas negativas del tipo PagarCobrar
         for (int i = 0; i <= 3; i++){
-            this.mazo.alMazo(new Sorpresa(TipoSorpresa.PAGARCOBRAR, "El jugador va a pagar 200 euros", -200));
+            this.mazo.alMazo(new SorpresaPagarCobrar ("El jugador va a pagar 200 euros", -200));
         }
         
-        // Añadimos 3 sorpresas positivas del tipo PAGARCOBRAR
+        // Añadimos 3 sorpresas positivas del tipo PagarCobrar
         for (int i = 0; i <= 3; i++){
-            this.mazo.alMazo(new Sorpresa(TipoSorpresa.PAGARCOBRAR, "El jugador va a cobrar 400 euros", 400));
+            this.mazo.alMazo(new SorpresaPagarCobrar ("El jugador va a cobrar 400 euros", 400));
         }
         
-        // Añadimos 2 sorpresas negativas del tipo PAGARCOBRAR
+        // Añadimos 2 sorpresas negativas del tipo PorCasaHotel
         for (int i = 0; i <= 3; i++){
-            this.mazo.alMazo(new Sorpresa(TipoSorpresa.PORCASAHOTEL, "El jugador debe pagar 100 euros por cada casa y hotel de su propiedad", -100));
+            this.mazo.alMazo(new SorpresaPorCasaHotel ("El jugador debe pagar 100 euros por cada casa y hotel a su propiedad", -100));
         }
         
-        // Añadimos 2 sorpresas positivas del tipo PAGARCOBRAR
+        // Añadimos 2 sorpresas positivas del tipo PorCasaHotel
         for (int i = 0; i <= 3; i++){
-            this.mazo.alMazo(new Sorpresa(TipoSorpresa.PORCASAHOTEL, "El jugador va a cobrar 100 euros por cada casa y hotel de su propiedad", 100));
+            this.mazo.alMazo(new SorpresaPorCasaHotel ("El jugador va a cobrar 100 euros por cada casa y hotel a su propiedad", 100));
         }
         
         // Ya hemos añadido las 10 cartas que componen el mazo
@@ -130,26 +135,26 @@ public class CivitasJuego {
     
     private void inicializaTablero (MazoSorpresas mazo){
         // La salida se creo con el constructor de Tablero
-        // Creamos 14 casillas del tipo calle, 4 del tipo sorpresa y una de tipo parking
-        tablero.añadeCasilla(new Casilla("Calle Arcilla",400,100,50));
-        tablero.añadeCasilla(new Casilla("Calle Terracota",450,150,75));
-        tablero.añadeCasilla(new Casilla("SORPRESAAA",mazo));
-        tablero.añadeCasilla(new Casilla("Calle Gres",450,150,75));        
-        tablero.añadeCasilla(new Casilla("Calle Esmalte",500,200,100));
-        tablero.añadeCasilla(new Casilla("SORPRESAAA",mazo));
-        tablero.añadeCasilla(new Casilla("Calle Porcelana",550,250,125));        
-        tablero.añadeCasilla(new Casilla("Calle Mayolica",550,250,125));        
-        tablero.añadeCasilla(new Casilla("Calle Biscuit",550,250,125));
-        tablero.añadeCasilla(new Casilla("Parking Arenisca",mazo));
-        tablero.añadeCasilla(new Casilla("Calle Fayenza",600,300,150));        
-        tablero.añadeCasilla(new Casilla("Calle Loza",600,300,150));        
-        tablero.añadeCasilla(new Casilla("Calle Teja",600,300,150));
-        tablero.añadeCasilla(new Casilla("SORPRESAAA",mazo));
-        tablero.añadeCasilla(new Casilla("Calle Caolin",600,300,150));        
-        tablero.añadeCasilla(new Casilla("Calle Negra",600,300,150));
-        tablero.añadeCasilla(new Casilla("SORPRESAAA",mazo));
-        tablero.añadeCasilla(new Casilla("Calle Blanca",700,400,200));        
-        tablero.añadeCasilla(new Casilla("Calle Ladrillo",700,400,200));        
+        // Creamos 14 casillas del tipo calle, 4 del tipo sorpresa y una de tipo parking (descanso)
+        tablero.añadeCasilla(new CasillaCalle("Calle Arcilla",400,100,50));
+        tablero.añadeCasilla(new CasillaCalle("Calle Terracota",450,150,75));
+        tablero.añadeCasilla(new CasillaSorpresa("SORPRESAAA",mazo));
+        tablero.añadeCasilla(new CasillaCalle("Calle Gres",450,150,75));        
+        tablero.añadeCasilla(new CasillaCalle("Calle Esmalte",500,200,100));
+        tablero.añadeCasilla(new CasillaSorpresa("SORPRESAAA",mazo));
+        tablero.añadeCasilla(new CasillaCalle("Calle Porcelana",550,250,125));        
+        tablero.añadeCasilla(new CasillaCalle("Calle Mayolica",550,250,125));        
+        tablero.añadeCasilla(new CasillaCalle("Calle Biscuit",550,250,125));
+        tablero.añadeCasilla(new Casilla("Parking Arenisca"));
+        tablero.añadeCasilla(new CasillaCalle("Calle Fayenza",600,300,150));        
+        tablero.añadeCasilla(new CasillaCalle("Calle Loza",600,300,150));        
+        tablero.añadeCasilla(new CasillaCalle("Calle Teja",600,300,150));
+        tablero.añadeCasilla(new CasillaSorpresa("SORPRESAAA",mazo));
+        tablero.añadeCasilla(new CasillaCalle("Calle Caolin",600,300,150));        
+        tablero.añadeCasilla(new CasillaCalle("Calle Negra",600,300,150));
+        tablero.añadeCasilla(new CasillaSorpresa("SORPRESAAA",mazo));
+        tablero.añadeCasilla(new CasillaCalle("Calle Blanca",700,400,200));        
+        tablero.añadeCasilla(new CasillaCalle("Calle Ladrillo",700,400,200));        
     }
     
     private void PasarTurno(){

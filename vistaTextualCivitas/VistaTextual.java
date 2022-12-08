@@ -3,6 +3,7 @@ package vistaTextualCivitas;
 //import civitas.Casilla;      //(No usado)
 import civitas.CivitasJuego;
 import civitas.Diario;
+import civitas.JugadorEspeculador;
 import civitas.OperacionJuego;
 import controladorCivitas.Respuesta;
 import civitas.OperacionInmobiliaria;
@@ -68,12 +69,20 @@ public class VistaTextual implements Vista {
   
   @Override
   public void actualiza(){
-      if (!this.juegoModel.finalDelJuego())
-          System.out.println(juegoModel.getJugadorActual().toString() +separador 
+      if (!this.juegoModel.finalDelJuego()){
+          if (juegoModel.getJugadorActual().getEsJugadorEspeculador())  // Si es jugador especulador, lo tiene en cuenta
+              System.out.println(((JugadorEspeculador) juegoModel.getJugadorActual()).toString() +separador 
                   +"\nCARACTERISTICAS CASILLA ACTUAL:\n" 
                   +juegoModel.getTablero().getCasilla(juegoModel.getJugadorActual().getCasillaActual()).toString());
                   // En esta ultima linea conseguimos el tablero, de él la casilla actual (su indice lo conseguimos desde
-                  // el jugador actual) y le aplicamos su propio metodo toString()      
+                  // el jugador actual) y le aplicamos su propio metodo toString()
+          else
+              System.out.println(juegoModel.getJugadorActual().toString() +separador 
+                  +"\nCARACTERISTICAS CASILLA ACTUAL:\n" 
+                  +juegoModel.getTablero().getCasilla(juegoModel.getJugadorActual().getCasillaActual()).toString());
+                  // En esta ultima linea conseguimos el tablero, de él la casilla actual (su indice lo conseguimos desde
+                  // el jugador actual) y le aplicamos su propio metodo toString()     
+      }
       else{
           // En este metodo NO aplicamos el metodo ranking(), de eso se encarga el controlador
           System.out.println("El ganador es el jugador " +juegoModel.getJugadores().get(0).getNombre() +". RANKING FINAL:");
