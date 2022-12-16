@@ -7,43 +7,34 @@ package controladorCivitas;
  * 
  */
 
-//import civitas.Casilla;       (No usado)
+import GUI.CivitasView;
+import GUI.Vista;
 import civitas.CivitasJuego;
 import civitas.GestionInmobiliaria;
 import civitas.OperacionInmobiliaria;
 import civitas.OperacionJuego;
-import vistaTextualCivitas.Vista;
-import vistaTextualCivitas.VistaTextual;
 
 public class Controlador {
-    private static final String separador = "*==================================================================*";
     private CivitasJuego juego;
     private Vista vista;
     
-    // CAMBIO (!!). Tenia visibilidad paquete pero tuve que ponerla en public para poder usarlo en JuegoTexto
-    public Controlador (CivitasJuego juego, VistaTextual vista){
+    // CAMBIO (!!). Tenia visibilidad paquete pero tuve que ponerla en public para poder usarlo en el archivo main
+    public Controlador (CivitasJuego juego, CivitasView vista){
         this.juego = juego;
         this.vista = vista;
     }
     
     public void juega(){
         while (!this.juego.finalDelJuego()){
-            System.out.println("*====   =SITUACION ACTUAL=   ======================================*\n");
             vista.actualiza();
-            System.out.println(separador);
             vista.pausa();              // Esperamos a que el usuario interactue entre turno y turno
             
             
-            
-            System.out.println("*====   =MENSAJES Y ACCIONES=   ===================================*");
             OperacionJuego siguientePaso = juego.siguientePaso();
             vista.mostrarSiguienteOperacion(siguientePaso);
             
             if (siguientePaso != OperacionJuego.PASAR_TURNO)
                 vista.mostrarEventos();
-            System.out.println(separador);
-            vista.pausa();
-            
             
             
             switch (siguientePaso){
@@ -52,8 +43,9 @@ public class Controlador {
                     if (response == Respuesta.SI)
                         juego.comprar();
                     juego.siguientePasoCompletado(siguientePaso);
+                    vista.actualiza();
                     break;
-                    
+                
                 case GESTIONAR:
                     // Este if siguiente lo añadí para que, si un jugador no tiene NINGUNA propiedad, no pueda elegir si quiere
                     // construir una casa o un hotel. Como no tiene propiedades, si elegía una de estas dos opciones,
@@ -84,7 +76,6 @@ public class Controlador {
                     else{
                         juego.siguientePasoCompletado(siguientePaso);
                     }
-                    
                     break;
             }
         }

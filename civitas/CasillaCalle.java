@@ -28,25 +28,29 @@ public class CasillaCalle extends Casilla {
         this.propietario = null;
     }
     
-    float getPrecioCompra(){
+    public Jugador getPropietario(){
+        return propietario;
+    }
+    
+    public float getPrecioCompra(){
         return this.precioCompra;
       }
       
-    float getPrecioEdificar(){
+    public float getPrecioEdificar(){
         return this.precioEdificar;  
     }
       
-    float getPrecioAlquilerCompleto(){
+    public float getPrecioAlquilerCompleto(){
         float precioAlquiler;          
         precioAlquiler = this.precioBaseAlquiler * (FACTORALQUILERCALLE + this.numCasas * FACTORALQUILERCASA + this.numHoteles * FACTORALQUILERHOTEL);          
         return precioAlquiler;
     }  
       
-    int getNumCasas(){
+    public int getNumCasas(){
         return this.numCasas;
     }
       
-    int getNumHoteles(){
+    public int getNumHoteles(){
         return this.numHoteles;
     }
       

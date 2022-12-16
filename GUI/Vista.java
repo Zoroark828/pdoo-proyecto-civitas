@@ -1,5 +1,5 @@
 
-package vistaTextualCivitas;
+package GUI;
 
 
 import civitas.OperacionInmobiliaria;

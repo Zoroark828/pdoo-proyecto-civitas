@@ -82,11 +82,11 @@ public class Jugador implements Comparable<Jugador> {
             if(this.puedoGastar(precio)){
                 result = titulo.comprar(this);
                 propiedades.add(titulo);
-                Diario.getInstance().ocurreEvento("El jugador " +this.nombre +" compra la " +titulo.getNombre());
+                Diario.getInstance().ocurreEvento("El jugador " +this.nombre +" compra la calle " +titulo.getNombre());
                 this.puedeComprar = false;
             }
             else
-                Diario.getInstance().ocurreEvento("El jugador " +this.nombre +" no tiene saldo para comprar la " +titulo.getNombre());
+                Diario.getInstance().ocurreEvento("El jugador " +this.nombre +" no tiene saldo para comprar la calle " +titulo.getNombre());
         }
         
         return result;
@@ -162,7 +162,7 @@ public class Jugador implements Comparable<Jugador> {
         return this.puedeComprar;
     }
     
-    protected float getSaldo(){
+    public float getSaldo(){
         return this.saldo;
     }
     

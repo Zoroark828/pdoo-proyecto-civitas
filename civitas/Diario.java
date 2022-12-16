@@ -27,7 +27,8 @@ public class Diario {
     eventos = new ArrayList();
   }
   
-  void ocurreEvento (String evento) {
+  // CAMBIO (!!). Lo cambié de package a public para poder usarlo en VistaDiario
+  public void ocurreEvento (String evento) {
     eventos.add (evento);
   }
   

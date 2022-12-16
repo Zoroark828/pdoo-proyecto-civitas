@@ -1,6 +1,7 @@
 
 package civitas;
 
+import GUI.VistaDado;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -29,10 +30,10 @@ public class CivitasJuego {
         estado = gestorEstados.estadoInicial();
         
         // Ponemos el dado en el modo debug que estuviera indicado en los parametros
-        Dado.getInstance().setDebug(debug);
+        VistaDado.getInstance().setDebug(debug);
         
         // Inicializamos el inidice del jugador actual, que tendrá el primer turno
-        indiceJugadorActual = Dado.getInstance().quienEmpieza(jugadores.size());
+        indiceJugadorActual = VistaDado.getInstance().quienEmpieza(jugadores.size());
 
         // Creamos el mazo y el tablero, y los inicializamos con los metodos correspondientes de esta misma clase
         this.mazo = new MazoSorpresas(debug);        
@@ -44,7 +45,7 @@ public class CivitasJuego {
     private void avanzaJugador(){
         Jugador jugadorActual = this.getJugadorActual();
         int posicionActual = jugadorActual.getCasillaActual();
-        int tirada = Dado.getInstance().tirar();
+        int tirada = VistaDado.getInstance().tirar();
         int posicionNueva = this.tablero.nuevaPosicion(posicionActual, tirada);
         Casilla casilla = this.tablero.getCasilla(posicionNueva);
         
@@ -136,25 +137,26 @@ public class CivitasJuego {
     private void inicializaTablero (MazoSorpresas mazo){
         // La salida se creo con el constructor de Tablero
         // Creamos 14 casillas del tipo calle, 4 del tipo sorpresa y una de tipo parking (descanso)
-        tablero.añadeCasilla(new CasillaCalle("Calle Arcilla",400,100,50));
-        tablero.añadeCasilla(new CasillaCalle("Calle Terracota",450,150,75));
-        tablero.añadeCasilla(new CasillaSorpresa("SORPRESAAA",mazo));
-        tablero.añadeCasilla(new CasillaCalle("Calle Gres",450,150,75));        
-        tablero.añadeCasilla(new CasillaCalle("Calle Esmalte",500,200,100));
-        tablero.añadeCasilla(new CasillaSorpresa("SORPRESAAA",mazo));
-        tablero.añadeCasilla(new CasillaCalle("Calle Porcelana",550,250,125));        
-        tablero.añadeCasilla(new CasillaCalle("Calle Mayolica",550,250,125));        
-        tablero.añadeCasilla(new CasillaCalle("Calle Biscuit",550,250,125));
-        tablero.añadeCasilla(new Casilla("Parking Arenisca"));
-        tablero.añadeCasilla(new CasillaCalle("Calle Fayenza",600,300,150));        
-        tablero.añadeCasilla(new CasillaCalle("Calle Loza",600,300,150));        
-        tablero.añadeCasilla(new CasillaCalle("Calle Teja",600,300,150));
-        tablero.añadeCasilla(new CasillaSorpresa("SORPRESAAA",mazo));
-        tablero.añadeCasilla(new CasillaCalle("Calle Caolin",600,300,150));        
-        tablero.añadeCasilla(new CasillaCalle("Calle Negra",600,300,150));
-        tablero.añadeCasilla(new CasillaSorpresa("SORPRESAAA",mazo));
-        tablero.añadeCasilla(new CasillaCalle("Calle Blanca",700,400,200));        
-        tablero.añadeCasilla(new CasillaCalle("Calle Ladrillo",700,400,200));        
+        tablero.añadeCasilla(new CasillaCalle("Arcilla",400,100,50));
+        tablero.añadeCasilla(new CasillaCalle("Terracota",450,150,75));
+        tablero.añadeCasilla(new CasillaSorpresa("SORPRESA",mazo));
+        tablero.añadeCasilla(new CasillaCalle("Gres",450,150,75));        
+        tablero.añadeCasilla(new CasillaCalle("Esmalte",500,200,100));
+        tablero.añadeCasilla(new CasillaSorpresa("SORPRESA",mazo));
+        tablero.añadeCasilla(new CasillaCalle("Porcelana",550,250,125));        
+        tablero.añadeCasilla(new CasillaCalle("Mayolica",550,250,125));        
+        tablero.añadeCasilla(new CasillaCalle("Biscuit",550,250,125));
+        tablero.añadeCasilla(new Casilla("PARKING"));
+        tablero.añadeCasilla(new CasillaCalle("Fayenza",600,300,150));        
+        tablero.añadeCasilla(new CasillaCalle("Loza",600,300,150));        
+        tablero.añadeCasilla(new CasillaCalle("Teja",600,300,150));
+        tablero.añadeCasilla(new CasillaSorpresa("SORPRESA",mazo));
+        tablero.añadeCasilla(new CasillaCalle("Caolin",600,300,150));        
+        tablero.añadeCasilla(new CasillaCalle("Negra",600,300,150));
+        tablero.añadeCasilla(new CasillaSorpresa("SORPRESA",mazo));
+        tablero.añadeCasilla(new CasillaCalle("Blanca",700,400,200));        
+        tablero.añadeCasilla(new CasillaCalle("Ladrillo",700,400,200));
+        
     }
     
     private void PasarTurno(){
